@@ -2,19 +2,27 @@ use dotenv::dotenv;
 mod api;
 mod routes;
 use crate::api::SteamAPI;
-use crate::routes::hello_world;
+use crate::routes::get_owned_games;
 use axum::{routing::get, Router};
 use std::net::SocketAddr;
+
+// TODO: Remove this later, just send SteamAPI
+#[derive(Clone)]
+pub struct AppState {
+    pub steam_api: SteamAPI,
+}
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
     dotenv().ok();
-    let steam_key = std::env::var("STEAM_KEY").expect("STEAM_KEY not found in enviroment");
+    let steam_key = std::env::var("STEAM_KEY").expect("STEAM_KEY not found in enviroment.");
+
+    let state = SteamAPI::new(steam_key).expect("Error initializing Steam API service.");
 
     let app = Router::new()
-        .route("/", get(hello_world))
-        .with_state(SteamAPI::new(steam_key));
+        .route("/GetOwnedGames", get(get_owned_games))
+        .with_state(AppState { steam_api: state });
 
     // `GET /` goes to `root`
     // `POST /users` goes to `create_user`
