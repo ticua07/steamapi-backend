@@ -32,7 +32,6 @@ impl SteamAPI {
         params.insert("include_appinfo", "true".into());
         params.insert("include_played_free_games", "true".into());
 
-        // too late 2am
         let body = self
             .make_request(
                 params,
@@ -52,6 +51,26 @@ impl SteamAPI {
         }
 
         Ok(games)
+    }
+
+    pub async fn get_game_achievements(
+        self,
+        steam_id: String,
+        app_id: String,
+    ) -> Result<Value, reqwest::Error> {
+        let mut params = HashMap::new();
+        params.insert("steamid", steam_id);
+        params.insert("appid", app_id);
+
+        // There is a v2 of this API, but returns more data that doesn't matter.
+        let body = self
+            .make_request(
+                params,
+                "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/",
+            )
+            .await?;
+
+        Ok(body)
     }
 
     async fn make_request(

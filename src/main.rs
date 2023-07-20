@@ -1,8 +1,8 @@
 use dotenv::dotenv;
 mod api;
 mod routes;
-use crate::api::SteamAPI;
 use crate::routes::get_owned_games;
+use crate::{api::SteamAPI, routes::get_game_achievements};
 use axum::{routing::get, Router};
 use std::net::SocketAddr;
 
@@ -22,6 +22,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/GetOwnedGames", get(get_owned_games))
+        .route("/GetGameAchievements", get(get_game_achievements))
         .with_state(AppState { steam_api: state });
 
     // `GET /` goes to `root`
